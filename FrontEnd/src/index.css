@@ -1,0 +1,364 @@
+/* Google fonts (keep) */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap");
+
+/* Tailwind v4 (required) */
+@import "tailwindcss";
+
+/* ---------- THEME TOKENS ---------- */
+:root {
+  --font-display: "Poppins", "sans-serif";
+  --color-primary: #875cf5;
+
+  /* Light */
+  --bg: #fcfbfc;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+
+  /* Text scale (stronger contrast in light mode) */
+  --text-strong: #0f172a;
+  /* title/values */
+  --text: #111827;
+  /* normal text */
+  --text-muted: #475569;
+  /* labels/subtitles */
+  --placeholder: #6b7280;
+
+  --primary: var(--color-primary);
+
+  /* charts */
+  --chart-grid: #e5e7eb;
+  --chart-axis: #475569;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-fg: #111827;
+}
+
+html[data-theme="dark"] {
+  --bg: #0b1220;
+  --surface: #0f172a;
+  --border: #1f2837;
+
+  /* Dark text scale (brighter so it never fades) */
+  --text-strong: #f3f4f6;
+  --text: #e5e7eb;
+  --text-muted: #cbd5e1;
+  --placeholder: #9ca3af;
+
+  --primary: #9b7cfa;
+
+  /* charts */
+  --chart-grid: #1f2937;
+  --chart-axis: #cbd5e1;
+  --chart-tooltip-bg: #111827;
+  --chart-tooltip-fg: #e5e7eb;
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    font-family: var(--font-display);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    user-select: none;
+  }
+}
+
+/* quick helpers */
+.theme-bg {
+  background: var(--bg);
+}
+
+.theme-text {
+  color: var(--text);
+}
+
+.theme-card {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.text-strong {
+  color: var(--text-strong);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Inputs */
+.input-box {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  margin-top: 0.75rem;
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.input-box input::placeholder,
+.input-box textarea::placeholder {
+  color: var(--placeholder);
+}
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 0.375rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  color: #fff;
+  background: var(--primary);
+  border: 1px solid color-mix(in oklab, var(--primary), #000 10%);
+}
+
+/* Cards */
+.card {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+}
+
+/* Misc small buttons */
+.card-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0.375rem 1rem;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  cursor: pointer;
+  color: var(--text);
+  background: color-mix(in oklab, var(--surface), #6b7280 8%);
+  border-color: var(--border);
+}
+
+.add-btn,
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  padding: 10px;
+  cursor: pointer;
+  color: var(--primary);
+  background: color-mix(in oklab, var(--primary), white 88%);
+  border: 1px solid color-mix(in oklab, var(--primary), white 80%);
+}
+
+@media (min-width: 768px) {
+
+  .add-btn,
+  .action-btn {
+    font-size: 0.875rem;
+  }
+}
+
+/* Theme-aware hover helper: use surface-based hover that respects light/dark themes */
+.hover-theme-card {
+  transition: background-color .25s ease;
+}
+
+.hover-theme-card:hover {
+  background: color-mix(in oklab, var(--surface), #000 4%);
+}
+
+html[data-theme="dark"] .hover-theme-card:hover {
+  background: color-mix(in oklab, var(--surface), #000 6%);
+}
+
+/* Filled variants */
+.primary-btn-fill {
+  color: #fff;
+  background: var(--primary);
+  border: 1px solid color-mix(in oklab, var(--primary), #000 10%);
+}
+
+.warning-btn-fill {
+  color: #fff;
+  background: #f59e0b;
+  border: 1px solid #fed7aa;
+}
+
+.error-btn-fill {
+  color: #fff;
+  background: #ef4444;
+  border: 1px solid #fecaca;
+}
+
+.success-btn-fill {
+  color: #fff;
+  background: #22c55e;
+  border: 1px solid #bbf7d0;
+}
+
+/* Outline variants */
+.primary-outline-btn-fill {
+  color: var(--primary);
+  background: var(--surface);
+  border: 2px solid var(--primary);
+}
+
+.warning-outline-btn-fill {
+  color: #f59e0b;
+  background: var(--surface);
+  border: 2px solid #f59e0b;
+}
+
+.error-outline-btn-fill {
+  color: #ef4444;
+  background: var(--surface);
+  border: 2px solid #ef4444;
+}
+
+.success-outline-btn-fill {
+  color: #22c55e;
+  background: var(--surface);
+  border: 2px solid #22c55e;
+}
+
+/* === THEME CONTRAST SAFETY-NET =========================================
+   Maps common Tailwind gray/black text classes to theme variables so
+   nothing goes invisible in light or dark mode. No component changes needed.
+   ====================================================================== */
+
+/* Primary readable text */
+:root .text-black,
+:root .text-gray-900,
+:root .text-slate-900 {
+  color: var(--text) !important;
+}
+
+/* Muted (secondary) text/icons — e.g., hints, captions, helper labels */
+:root .text-gray-700,
+:root .text-gray-600,
+:root .text-gray-500,
+:root .text-gray-400,
+:root .text-slate-700,
+:root .text-slate-600,
+:root .text-slate-500,
+:root .text-slate-400 {
+  color: var(--muted) !important;
+}
+
+/* Inputs/labels that used extremely light gray */
+:root .placeholder-gray-400,
+:root .placeholder-slate-400 {
+  color: color-mix(in oklab, var(--muted), #000 10%) !important;
+}
+
+/* Ensure icons that used very light gray remain visible in light mode */
+:root .text-zinc-400,
+:root .text-neutral-400 {
+  color: color-mix(in oklab, var(--muted), #000 12%) !important;
+}
+
+/* Finance/summary tiny legends often use 500–400 tones: keep contrast */
+:root .legend-muted,
+:root .text-legend {
+  color: color-mix(in oklab, var(--muted), var(--text) 25%) !important;
+}
+
+/* Card titles/section headings sometimes got custom light colors */
+:root .heading-muted {
+  color: var(--text) !important;
+}
+
+
+/* Make sure “disabled-looking” Gray-300 stuff doesn’t vanish */
+:root .text-gray-300,
+:root .text-slate-300 {
+  color: color-mix(in oklab, var(--muted), var(--text) 35%) !important;
+}
+
+/* Dark theme: keep anything explicitly black readable too */
+html[data-theme="dark"] .text-black,
+html[data-theme="dark"] .text-gray-900,
+html[data-theme="dark"] .text-slate-900 {
+  color: var(--text) !important;
+}
+
+/* chart panel surface */
+.chart-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  /* keeps axes/labels from touching the edge */
+}
+
+/* ===== FINANCE WIDGET TEXT FIX ===== */
+
+/* Finance Overview total labels and numbers */
+.finance-overview text,
+.finance-overview .text-black,
+.finance-overview .text-gray-900 {
+  fill: var(--text-strong) !important;
+  color: var(--text-strong) !important;
+}
+
+/* Recharts axis labels (x: months, y: amounts) */
+.recharts-wrapper text {
+  fill: var(--text-muted) !important;
+}
+
+/* Strong numbers like totals, $ values in charts */
+.recharts-wrapper .recharts-text tspan {
+  fill: var(--text-strong) !important;
+}
+
+/* Tooltip fix */
+.recharts-tooltip-wrapper,
+.recharts-tooltip-wrapper * {
+  color: var(--text-strong) !important;
+}
+
+/* Custom visible badge for income in light mode */
+.income-badge-visible {
+  background-color: #16a34a !important;
+  /* bg-green-600 */
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .income-badge-visible {
+  background-color: rgba(34, 197, 94, 0.35) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.6) !important;
+}
+
+/* Custom visible badge for expense in light mode */
+.expense-badge-visible {
+  background-color: #be123c !important;
+  /* bg-red-700 */
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .expense-badge-visible {
+  background-color: rgba(239, 68, 68, 0.25) !important;
+  /* bg-red-500/25 */
+  color: #f87171 !important;
+  /* text-red-400 */
+  border: 1px solid rgba(248, 113, 113, 0.5) !important;
+}

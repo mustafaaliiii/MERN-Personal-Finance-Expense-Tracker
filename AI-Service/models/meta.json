@@ -1,0 +1,27 @@
+{
+  "series_start": "2019-01-01",
+  "series_end": "2023-11-01",
+  "freq": "MS",
+  "target": "monthly_expense_total(mean_per_user)",
+  "aggregation": "mean_per_user",
+  "training_currency": "USD",
+  "log_transform": true,
+  "outlier_winsorize": {
+    "lower_q": 0.01,
+    "upper_q": 0.99
+  },
+  "model_used": "(0, 1, 1) seasonal (0, 1, 1, 12)",
+  "n_points": 59,
+  "mean_monthly_observed": 829561.4163389829,
+  "max_monthly_observed": 932358.7840000001,
+  "min_monthly_observed": 0.0,
+  "max_monthly_used_after_cleaning": 919084.24048,
+  "forecast_steps": 3,
+  "forecast_sample": [
+    936661.91,
+    859153.94,
+    877368.01
+  ],
+  "model_aic": 1201.0827789657603,
+  "training_timestamp": "2026-03-06T10:20:19.511990"
+}
