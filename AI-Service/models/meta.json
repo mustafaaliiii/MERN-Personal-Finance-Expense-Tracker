@@ -4,7 +4,7 @@
   "freq": "MS",
   "target": "monthly_expense_total(mean_per_user)",
   "aggregation": "mean_per_user",
-  "training_currency": "USD",
+  "training_currency": "PKR",
   "log_transform": true,
   "outlier_winsorize": {
     "lower_q": 0.01,
