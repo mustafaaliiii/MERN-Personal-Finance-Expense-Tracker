@@ -6,6 +6,7 @@ const {
   registerUser,
   loginUser,
   getUserInfo,
+  updateProfile,
   deleteAccount,
 } = require("../controllers/authController");
 
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/getUser", protect, getUserInfo);
+router.put("/updateProfile", protect, updateProfile);
 
 router.post("/upload-image", upload.single("image"), (req, res) => {
   if (!req.file) {

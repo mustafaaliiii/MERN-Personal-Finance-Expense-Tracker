@@ -102,3 +102,32 @@ exports.deleteAccount = async (req, res) => {
       .json({ message: "Error deleting account", error: error.message });
   }
 };
+
+// Update User Profile
+exports.updateProfile = async (req, res) => {
+  const { fullName, profileImageUrl, bio, gender, dob, phone, address, city, state, country, zip } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (fullName !== undefined) user.fullName = fullName;
+    if (profileImageUrl !== undefined) user.profileImageUrl = profileImageUrl;
+    if (bio !== undefined) user.bio = bio;
+    if (gender !== undefined) user.gender = gender;
+    if (dob !== undefined) user.dob = dob;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) user.address = address;
+    if (city !== undefined) user.city = city;
+    if (state !== undefined) user.state = state;
+    if (country !== undefined) user.country = country;
+    if (zip !== undefined) user.zip = zip;
+
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating profile", error: error.message });
+  }
+};

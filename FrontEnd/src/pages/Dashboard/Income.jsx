@@ -1,18 +1,17 @@
-import { useState, useEffect } from "react";
-import { useUserAuth } from "../../hooks/useUserAuth";
+import { useState, useEffect, useContext } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import IncomeOverview from "../../components/Income/IncomeOverview";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import Modal from "../../components/Modal";
 import AddIncomeForm from "../../components/Income/AddIncomeForm";
+import UploadIncomeCsvForm from "../../components/Income/UploadIncomeCsvForm";
 import { toast } from "react-hot-toast";
 import IncomeList from "../../components/Income/IncomeList";
+import { UserContext } from "../../context/UserContext";
 import ConfirmAlert from "../../components/ConfirmAlert";
 
 const IncomePage = () => {
-  useUserAuth();
-
   const [incomeData, setIncomeData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
@@ -20,6 +19,7 @@ const IncomePage = () => {
     data: null,
   });
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
+  const [openCsvModal, setOpenCsvModal] = useState(false);
 
   // Get All Income Transactions
   const fetchIncomeTransactions = async () => {
@@ -110,6 +110,7 @@ const IncomePage = () => {
 
   useEffect(() => {
     fetchIncomeTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -121,6 +122,7 @@ const IncomePage = () => {
               transactions={incomeData}
               loading={loading}
               onAddIncome={() => setOpenAddIncomeModal(true)}
+              onUploadCsv={() => setOpenCsvModal(true)}
             />
           </div>
 
@@ -136,6 +138,18 @@ const IncomePage = () => {
             onDownload={handleDownloadIncomeDetails}
           />
         </div>
+
+        {/* Upload CSV Modal */}
+        <Modal
+          isOpen={openCsvModal}
+          onClose={() => setOpenCsvModal(false)}
+          title="Upload Bank Statement (PDF/CSV/Excel)"
+        >
+          <UploadIncomeCsvForm 
+            onSuccess={() => { setOpenCsvModal(false); fetchIncomeTransactions(); }}
+            onCancel={() => setOpenCsvModal(false)}
+          />
+        </Modal>
 
         {/* Add Income */}
         <Modal

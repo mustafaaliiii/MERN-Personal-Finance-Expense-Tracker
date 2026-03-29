@@ -1,10 +1,11 @@
 import { useState, useContext } from "react";
 import { SIDE_MENU_DATA } from "../../utils/data";
-import { UserContext } from "../../context/userContext";
+import { UserContext } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import CharAvatar from "../Cards/CharAvatar";
 import Modal from "../Modal";
 import ConfirmAlert from "../ConfirmAlert";
+import { LuLayoutDashboard } from "react-icons/lu";
 
 const SideMenu = ({ activeMenu }) => {
   const { user, clearUser } = useContext(UserContext);
@@ -56,6 +57,20 @@ const SideMenu = ({ activeMenu }) => {
             </button>
           );
         })}
+
+        {(user?.role === 'admin' || user?.role === 'superadmin') && (
+          <div className="mt-5 pt-5 border-t border-gray-200 dark:border-gray-700">
+            <h6 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3 px-6">ADMIN</h6>
+            <button
+              onClick={() => handleClick('/admin')}
+              className={`w-full flex items-center gap-4 text-[15px] py-3 px-6 rounded-lg mb-3 cursor-pointer border
+                ${activeMenu === 'Admin Dashboard' ? "primary-btn-fill" : "theme-card"}`}
+            >
+              <LuLayoutDashboard className={`text-xl ${activeMenu === 'Admin Dashboard' ? "text-white" : "text-gray-700 dark:text-gray-200"}`} />
+              <span className={activeMenu === 'Admin Dashboard' ? "text-white font-medium" : "theme-text"}>Admin Dashboard</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <Modal

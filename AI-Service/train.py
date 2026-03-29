@@ -107,6 +107,22 @@ def main():
 
     joblib.dump(res, MODEL_PATH)
 
+    # Extract Global Seasonal Multipliers (Shape of the year)
+    try:
+        ma = monthly_clean.rolling(window=12, center=True).mean()
+        ratios = monthly_clean / ma
+        seasonal_indices = ratios.groupby(ratios.index.month).mean().fillna(1.0)
+        if seasonal_indices.sum() > 0:
+            seasonal_indices = seasonal_indices / seasonal_indices.sum() * 12
+        seasonal_dict = {str(k): round(float(v), 3) for k, v in seasonal_indices.items()}
+        # Ensure all 12 months exist
+        for m in range(1, 13):
+            if str(m) not in seasonal_dict:
+                seasonal_dict[str(m)] = 1.0
+    except Exception as e:
+        print("⚠️ Could not compute seasonal indices. Defaulting to 1.0", e)
+        seasonal_dict = {str(m): 1.0 for m in range(1, 13)}
+
     meta = {
         "series_start": str(monthly.index.min().date()),
         "series_end": str(monthly.index.max().date()),
@@ -126,6 +142,7 @@ def main():
         "forecast_sample": [round(float(x), 2) for x in pred],
         "model_aic": float(res.aic) if hasattr(res, 'aic') else None,
         "training_timestamp": pd.Timestamp.now().isoformat(),
+        "seasonal_indices": seasonal_dict,
     }
     META_PATH.write_text(json.dumps(meta, indent=2))
 

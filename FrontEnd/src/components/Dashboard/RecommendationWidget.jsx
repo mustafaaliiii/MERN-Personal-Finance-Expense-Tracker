@@ -55,7 +55,7 @@ const RecommendationWidget = ({ last30DaysByCategory }) => {
 
       <button
         onClick={fetchRecommendations}
-        className="mt-3 px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black"
+        className="mt-3 px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-[#000000]"
         disabled={loading}
       >
         {loading ? "Generating..." : "Generate Recommendations"}

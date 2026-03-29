@@ -6,7 +6,19 @@ const userSchema = new mongoose.Schema(
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    role: { type: String, enum: ['user', 'admin', 'superadmin'], default: 'user' },
     profileImageUrl: { type: String, default: null },
+    
+    // Profile details
+    bio: { type: String, default: "" },
+    gender: { type: String, default: "" },
+    dob: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    address: { type: String, default: "" },
+    city: { type: String, default: "" },
+    state: { type: String, default: "" },
+    country: { type: String, default: "" },
+    zip: { type: String, default: "" },
 
     // NEW: Inflation preference
     inflationPreference: {

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { LuPlus } from "react-icons/lu";
+import { LuPlus, LuUpload } from "react-icons/lu";
 import { prepareIncomeBarChartData } from "../../utils/helper";
 import CustomBarChart from "../Charts/CustomBarChart";
 
 const IncomeOverview = (props) => {
-    const { transactions, onAddIncome } = props;
+    const { transactions, onAddIncome, onUploadCsv } = props;
     const [chartData, setChartData] = useState([]);
 
     useEffect(() => {
@@ -25,10 +25,16 @@ const IncomeOverview = (props) => {
                     </p>
                 </div>
 
-                <button className="add-btn" onClick={onAddIncome}>
-                    <LuPlus className="text-lg" />
-                    Add Income
-                </button>
+                <div className="flex flex-wrap items-center gap-2 justify-end">
+                    <button className="add-btn bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800" onClick={onUploadCsv} title="Upload Bank Statement or CSV">
+                        <LuUpload className="text-lg" />
+                        <span className="hidden md:inline">Bank Statement</span>
+                    </button>
+                    <button className="add-btn" onClick={onAddIncome}>
+                        <LuPlus className="text-lg" />
+                        <span className="hidden lg:inline">Manual Income</span>
+                    </button>
+                </div>
             </div>
 
             <div className="mt-10">

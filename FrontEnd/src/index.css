@@ -3,6 +3,7 @@
 
 /* Tailwind v4 (required) */
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ---------- THEME TOKENS ---------- */
 :root {
@@ -111,6 +112,16 @@ html[data-theme="dark"] {
   color: var(--placeholder);
 }
 
+/* Fix browser autofill styling in dark mode */
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus,
+html[data-theme="dark"] input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Buttons */
 .btn-primary {
   width: 100%;
@@ -190,6 +201,10 @@ html[data-theme="dark"] .hover-theme-card:hover {
 }
 
 /* Filled variants */
+.bg-primary {
+  background-color: var(--primary) !important;
+}
+
 .primary-btn-fill {
   color: #fff;
   background: var(--primary);

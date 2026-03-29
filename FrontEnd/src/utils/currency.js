@@ -16,7 +16,7 @@ export function setCurrency(code) {
         })
       );
     } catch (e) {
-      /* ignore */
+      console.debug("Currency event ignored:", e);
     }
   }
 }

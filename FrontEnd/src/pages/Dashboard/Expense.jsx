@@ -1,22 +1,21 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
-import { useUserAuth } from "../../hooks/useUserAuth";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import ExpenseOverview from "../../components/Expense/ExpenseOverview";
 import AddExpenseForm from "../../components/Expense/AddExpenseForm";
+import UploadCsvForm from "../../components/Expense/UploadCsvForm";
 import Modal from "../../components/Modal";
 import ExpenseList from "../../components/Expense/ExpenseList";
+import { UserContext } from "../../context/UserContext";
 import ConfirmAlert from "../../components/ConfirmAlert";
 import CustomLineChart from "../../components/Charts/CustomLineChart";
-import { addThousandsSeparator } from "../../utils/helper";
 import { formatMoney, getCurrency } from "../../utils/currency";
 import { convertSync, fetchRate } from "../../utils/exchange";
 
 const ExpensePage = () => {
-  useUserAuth();
-
+  const { user } = useContext(UserContext);
   const [expenseData, setExpenseData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +24,7 @@ const ExpensePage = () => {
     data: null,
   });
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
+  const [openCsvModal, setOpenCsvModal] = useState(false);
 
   // ✅ AI states
   const [aiLoading, setAiLoading] = useState(false);
@@ -146,6 +146,7 @@ const ExpensePage = () => {
 
       const res = await axiosInstance.post(API_PATHS.PREDICTION.FORECAST, {
         steps: Number(forecastSteps),
+        userId: user?._id,
       });
 
       // Get forecast currency from metadata (default PKR)
@@ -226,6 +227,7 @@ const ExpensePage = () => {
 
   useEffect(() => {
     fetchExpenseTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto load forecast once on page open
@@ -345,6 +347,7 @@ const ExpensePage = () => {
               transactions={expenseData}
               loading={loading}
               onAddExpense={() => setOpenAddExpenseModal(true)}
+              onUploadCsv={() => setOpenCsvModal(true)}
             />
           </div>
 
@@ -355,6 +358,18 @@ const ExpensePage = () => {
             onDownload={handleDownloadExpenseDetails}
           />
         </div>
+
+        {/* Upload CSV Modal */}
+        <Modal
+          isOpen={openCsvModal}
+          onClose={() => setOpenCsvModal(false)}
+          title="Upload Bank Statement (PDF/CSV/Excel)"
+        >
+          <UploadCsvForm 
+            onSuccess={() => { setOpenCsvModal(false); fetchExpenseTransactions(); }}
+            onCancel={() => setOpenCsvModal(false)}
+          />
+        </Modal>
 
         {/* Add Expense Modal */}
         <Modal

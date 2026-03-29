@@ -129,7 +129,7 @@ const ForecastWidget = () => {
 
           <button
             onClick={() => fetchForecast(steps)}
-            className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black"
+            className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-[#000000]"
             disabled={loading}
           >
             {loading ? "Loading..." : "Refresh"}

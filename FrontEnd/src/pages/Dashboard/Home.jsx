@@ -1,13 +1,11 @@
 import DashboardLayout from "../../components/layouts/DashboardLayout";
-import { useUserAuth } from "../../hooks/useUserAuth";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import InfoCard from "../../components/Cards/InfoCard";
 import { IoMdCard } from "react-icons/io";
 import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
-import { addThousandsSeparator } from "../../utils/helper";
 import { formatMoney, getCurrency } from "../../utils/currency";
 import { convertSync, fetchRate } from "../../utils/exchange";
 import RecentTransactions from "../../components/Dashboard/RecentTransactions";
@@ -17,21 +15,35 @@ import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
 import CustomLineChart from "../../components/Charts/CustomLineChart";
+import { UserContext } from "../../context/UserContext";
 
 // ✅ NEW Forecast Component (AI Microservice via Node)
-const ForecastPreview = () => {
+const ForecastPreview = ({ user, totalIncome, totalExpenses }) => {
   const [data, setData] = useState([]);
   const [forecastValues, setForecastValues] = useState([]);
   const [forecastCurrency, setForecastCurrency] = useState("PKR");
   const [currency, setCurrency] = useState(getCurrency());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Fetch forecast data
   useEffect(() => {
     (async () => {
+      if (totalIncome === undefined || totalExpenses === undefined) return;
+      
       try {
+        setLoading(true);
+        setError(null);
+
+        const income = totalIncome || 0;
+        const expense = totalExpenses || 0;
+
         // Forecast next 3 months by default
         const res = await axiosInstance.post(API_PATHS.PREDICTION.FORECAST, {
           steps: 3,
+          userId: user?._id,
+          monthly_income: income,
+          monthly_expense: expense,
         });
 
         // Get forecast currency from metadata (default PKR)
@@ -50,9 +62,13 @@ const ForecastPreview = () => {
         }
       } catch (err) {
         console.error("Error fetching AI forecast:", err);
+        setError("Failed to fetch forecast data. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalIncome, totalExpenses]);
 
   // Recalculate data when currency changes
   useEffect(() => {
@@ -72,7 +88,7 @@ const ForecastPreview = () => {
     const handleCurrencyChange = () => {
       const newCurrency = getCurrency();
       setCurrency(newCurrency);
-      
+
       // Ensure exchange rate is loaded for conversion
       if (newCurrency !== forecastCurrency) {
         fetchRate(forecastCurrency, newCurrency).catch(() => {});
@@ -83,6 +99,18 @@ const ForecastPreview = () => {
     return () => window.removeEventListener("currencyChanged", handleCurrencyChange);
   }, [forecastCurrency]);
 
+  if (loading) {
+    return <p>Loading forecast...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+  if (!forecastValues.length) {
+    return <p className="text-gray-500">📊 No Forecast Available - Add some expense data to see AI-powered predictions.</p>;
+  }
+
   return (
     <div className="mt-4">
       <CustomLineChart data={data} />
@@ -91,7 +119,7 @@ const ForecastPreview = () => {
 };
 
 const HomePage = () => {
-  useUserAuth();
+  const { user } = useContext(UserContext);
 
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
@@ -113,6 +141,7 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load exchange rate on component mount (USD to PKR for forecast conversion)
@@ -209,7 +238,11 @@ const HomePage = () => {
             <h5 className="text-lg">AI Forecast (Next 3 Months)</h5>
           </div>
 
-          <ForecastPreview />
+          <ForecastPreview 
+            user={user} 
+            totalIncome={dashboardData?.totalIncome}
+            totalExpenses={dashboardData?.totalExpenses}
+          />
         </div>
       </div>
     </DashboardLayout>

@@ -41,6 +41,7 @@ const CustomBarChart = ({ data }) => {
       window.removeEventListener("exchangeRateUpdated", handleCurrencyChange);
       window.removeEventListener("currencyChanged", handleCurrencyChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [document.documentElement.getAttribute("data-theme")]);
 
   const getBarColor = (index) => {

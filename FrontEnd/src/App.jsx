@@ -11,6 +11,10 @@ import Home from './pages/Dashboard/Home';
 import Income from './pages/Dashboard/Income';
 import Expense from './pages/Dashboard/Expense';
 import Profile from './pages/Dashboard/Profile';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminUsers from './pages/Admin/AdminUsers';
+import AdminExpenses from './pages/Admin/AdminExpenses';
+import AdminIncomes from './pages/Admin/AdminIncomes';
 
 import UserProvider from './context/userContext';
 import { Toaster } from 'react-hot-toast';
@@ -28,6 +32,10 @@ function App() {
             <Route path="/income" element={<Income />} />
             <Route path="/expense" element={<Expense />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/expenses" element={<AdminExpenses />} />
+            <Route path="/admin/incomes" element={<AdminIncomes />} />
           </Routes>
         </Router>
       </div>

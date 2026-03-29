@@ -6,6 +6,7 @@ import joblib
 import json
 from pathlib import Path
 import numpy as np
+from datetime import datetime
 
 app = FastAPI(title="Finance AI Service")
 
@@ -31,6 +32,8 @@ meta = {}
 class ForecastRequest(BaseModel):
     steps: int = Field(3, ge=1, le=24)
     history: Optional[List[float]] = None
+    monthly_income: Optional[float] = None
+    monthly_expense: Optional[float] = None
 
 
 class ForecastResponse(BaseModel):
@@ -95,21 +98,57 @@ def forecast(req: ForecastRequest):
             "meta": {"error": "Model not loaded"}
         }
 
-    # 🔥 IMPORTANT: convert back from log space
-    pred_log = model.get_forecast(steps=req.steps).predicted_mean
-    pred = np.expm1(pred_log)
+    # Hybrid Base-Multiplier Forecasting
+    if req.history and len(req.history) >= 1:
+        history = np.array(req.history)
+        recent_avg = np.mean(history[-3:]) if len(history) > 0 else 0
 
-    forecast_vals = [max(0.0, float(x)) for x in pred.values]
+        # Calculate local trend if enough points exist
+        slope = np.polyfit(np.arange(len(history)), history, 1)[0] if len(history) >= 2 else 0
 
-    # Add forecast currency to metadata
-    # NOTE: model is trained on the training_currency (USD)
-    # so all forecast values are in that currency and must be converted
-    # by frontend if user selects a different currency
-    response_meta = {
-        **meta, 
-        "forecast_currency": meta.get("training_currency", "USD"),
-        "frontend_note": "All forecast values are in the training_currency. Frontend should convert based on user's selected currency."
-    }
+        forecast_vals = []
+        global_seasonality = meta.get("seasonal_indices", {})
+        current_month = datetime.now().month
+
+        for i in range(1, req.steps + 1):
+            target_month = (current_month + i - 1) % 12 + 1
+            seasonal_multiplier = global_seasonality.get(str(target_month), 1.0)
+
+            base_trend_val = recent_avg + slope * i
+            # Cap base trend explosion (max 1.5x of recent avg)
+            capped_base = max(0, min(base_trend_val, recent_avg * 1.5))
+            
+            # Apply global seasonal knowledge to user's local baseline
+            final_forecast = capped_base * seasonal_multiplier
+            forecast_vals.append(round(final_forecast, 2))
+
+        response_meta = {
+            **meta,
+            "forecast_method": "hybrid_base_multiplier",
+            "history_points": len(req.history),
+            "forecast_currency": meta.get("training_currency", "USD"),
+            "frontend_note": "Hybrid Forecast: User Baseline × Global Seasonality"
+        }
+    elif req.monthly_income and req.monthly_expense:
+        # Use monthly income and expense for forecasting
+        avg_savings = req.monthly_income - req.monthly_expense
+        forecast_vals = [max(0, avg_savings) for _ in range(req.steps)]
+
+        response_meta = {
+            **meta,
+            "forecast_method": "income_expense_based",
+            "forecast_currency": meta.get("training_currency", "USD"),
+            "frontend_note": "Forecast based on user's monthly income and expense."
+        }
+    else:
+        # No data available
+        forecast_vals = []
+        response_meta = {
+            **meta,
+            "forecast_method": "no_data",
+            "forecast_currency": meta.get("training_currency", "USD"),
+            "frontend_note": "No user data available for forecasting."
+        }
 
     return {
         "steps": req.steps,
@@ -127,19 +166,21 @@ ESSENTIAL_KEYWORDS = {
     "groceries", "food", "utility", "utilities", "power", "water", "gas",
     "healthcare", "medicine", "medical", "health", "rent", "housing", "mortgage",
     "education", "tuition", "school", "transport", "transportation", "fuel",
-    "internet", "phone", "mobile", "insurance"
+    "internet", "phone", "mobile", "insurance", "childcare", "daycare",
+    "electricity", "sanitation", "basic needs"
 }
 DISCRETIONARY_KEYWORDS = {
     "entertainment", "movie", "game", "shopping", "clothes", "fashion",
     "dining", "restaurant", "cafe", "coffee", "subscription", "streaming",
     "travel", "vacation", "hotel", "flight", "investment", "crypto",
-    "gym", "fitness", "hobby", "sports"
+    "gym", "fitness", "hobby", "sports", "luxury", "electronics",
+    "gifts", "decor", "events", "concerts", "alcohol", "bars"
 }
 
 def classify_category(cat_name: str) -> str:
     """Classify category as 'essential', 'discretionary', or 'other' (flexible matching)."""
-    cat_lower = cat_name.lower().strip()
-    
+    cat_lower = cat_name.lower().strip()  # Normalize input
+
     # Check if any keyword matches (substring search)
     for keyword in ESSENTIAL_KEYWORDS:
         if keyword in cat_lower:
@@ -147,7 +188,7 @@ def classify_category(cat_name: str) -> str:
     for keyword in DISCRETIONARY_KEYWORDS:
         if keyword in cat_lower:
             return "discretionary"
-    
+
     return "other"
 
 
@@ -172,6 +213,13 @@ def recommend(req: RecommendRequest):
             if amt > 0:  # Only allocate for positive amounts
                 share = amt / total_spend
                 suggested[cat] = round(req.monthly_budget * share, 2)
+                
+                # Smart dynamic insights based on ratios
+                if classify_category(cat) == "discretionary" and share > 0.30:
+                    notes.append(f"⚠️ You are spending {share*100:.0f}% of your total expenses on {cat}. Try to reduce this.")
+                elif cat.lower().strip() in ["food", "dining", "restaurant"] and share > 0.25:
+                    notes.append(f"💡 {cat} takes up a huge chunk ({share*100:.0f}%). Meal prepping could save you hundreds!")
+                
     else:
         # No history: use 50/30/20 rule
         suggested = {
